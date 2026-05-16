@@ -45,7 +45,7 @@ void ExchangeBuffer::ResizeBuffer() {
         }
     }
 
-    this->buffer = move(AuxiliaryBuffer);
+    this->buffer = std::move(AuxiliaryBuffer);
 
     this->local_head = counter;
     this->local_tail = 0;
