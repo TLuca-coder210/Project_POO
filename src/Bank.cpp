@@ -80,7 +80,7 @@ void Bank::CreateUser(const string &FirstName, const string &LastName, const str
     AllUsers[CNP] = new_client;
 }
 
-void Bank::DeleteUser(const string &FirstName, const string &LastName, const string &CNP) {
+void Bank::DeleteUser(const string &CNP) {
     auto it = AllUsers.find(CNP);
     if (it != AllUsers.end()) {
         User *client = it->second;

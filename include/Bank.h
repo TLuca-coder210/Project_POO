@@ -55,7 +55,7 @@ public:
     void RefreshRates();
     void CreateUser(const string &FirstName, const string &LastName, const string &CNP, const string &BirthDate);
     void CreateUser(const string &FirstName, const string &LastName, const string &CNP, const string &BirthDate, const string &currency);
-    void DeleteUser(const string &FirstName, const string &LastName, const string &CNP);
+    void DeleteUser(const string &CNP);
     void CreateAccount(const string &CNP, const string &currency);
     void DeleteAccount(const string &CNP, const string &IBAN);
     void CreateWallet(const string &FirstName, const string &LastName, const string &CNP, const string &BirthDate, const string &IBAN);

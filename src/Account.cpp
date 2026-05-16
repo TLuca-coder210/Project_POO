@@ -72,6 +72,7 @@ Wallet *Account::GetWallet(const string &WalletID) {
     if (AllWallets.find(WalletID) != AllWallets.end()) {
         return AllWallets[WalletID];
     }
+    return nullptr;
 }
 
 Account::~Account() {

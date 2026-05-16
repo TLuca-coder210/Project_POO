@@ -104,6 +104,7 @@ Account *User::GetAccount(const string &IBAN) {
         Account *account = AllAccounts[IBAN];
         return account;
     }
+    return nullptr;
 }
 
 void User::SendFriendInvitation(const string &CNP) {
