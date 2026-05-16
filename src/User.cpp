@@ -107,18 +107,18 @@ Account *User::GetAccount(const string &IBAN) {
     return nullptr;
 }
 
-void User::SendFriendInvitation(const string &CNP) {
-    if (SentFriendInvitations.find(CNP) == SentFriendInvitations.end()) {
-        SentFriendInvitations[CNP] = true;
+void User::SendFriendInvitation(const string &CNP_) {
+    if (SentFriendInvitations.find(CNP_) == SentFriendInvitations.end()) {
+        SentFriendInvitations[CNP_] = true;
     }
     else {
         cout << "Invitation already exists" << endl;
     }
 }
 
-bool User::AcceptFriendInvitation(const string &CNP) {
-    if (AcceptedFriendInvitations.find(CNP) == AcceptedFriendInvitations.end()) {
-        AcceptedFriendInvitations[CNP] = true;
+bool User::AcceptFriendInvitation(const string &CNP_) {
+    if (AcceptedFriendInvitations.find(CNP_) == AcceptedFriendInvitations.end()) {
+        AcceptedFriendInvitations[CNP_] = true;
         return true;
     }
     else {
@@ -127,18 +127,18 @@ bool User::AcceptFriendInvitation(const string &CNP) {
     }
 }
 
-void User::AddFriend(const string &CNP) {
-    Friends[CNP] = true;
+void User::AddFriend(const string &CNP_) {
+    Friends[CNP_] = true;
 }
 
-void User::EraseFriend(const string &CNP) {
-    if (Friends.find(CNP) != Friends.end()) {
-        Friends.erase(CNP);
+void User::EraseFriend(const string &CNP_) {
+    if (Friends.find(CNP_) != Friends.end()) {
+        Friends.erase(CNP_);
     }
 }
 
-bool User::CheckFriend(const string &CNP) {
-    if (Friends.find(CNP) != Friends.end()) {
+bool User::CheckFriend(const string &CNP_) {
+    if (Friends.find(CNP_) != Friends.end()) {
         return true;
     }
     return false;
