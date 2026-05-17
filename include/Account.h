@@ -39,8 +39,8 @@ public:
     Account(const Account& other);
     Account& operator=(const Account& other);
 
-    std::string GetIBAN() const;
-    double GetBalance() const;
+    [[nodiscard]]const std::string& GetIBAN() const;
+    [[nodiscard]]double GetBalance() const;
     void Deposit(double amount);
     virtual bool Withdraw(double amount);
 

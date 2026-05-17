@@ -339,7 +339,7 @@ bool Bank::VerifyTransaction(const AuditBuffer::USER &userAudit) {
 
 void Bank::DistributeMonthlyInterest() {
     for (const auto& pair : AllUsers) {
-        User* user = pair.second;
+        const User* user = pair.second;
         for (const auto& accPair : user->GetAllAccounts()) {
             Account* acc = accPair.second;
             SavingsAccount* savings = dynamic_cast<SavingsAccount*>(acc);
@@ -353,10 +353,10 @@ void Bank::DistributeMonthlyInterest() {
 void Bank::AuditOverdraftBalances() {
     std::cout << "Conturi in overdraft:" << std::endl;
     for (const auto& pair : AllUsers) {
-        User* user = pair.second;
+        const User* user = pair.second;
         for (const auto& accPair : user->GetAllAccounts()) {
             Account* acc = accPair.second;
-            CurrentAccount* current = dynamic_cast<CurrentAccount*>(acc);
+            const CurrentAccount* current = dynamic_cast<CurrentAccount*>(acc);
             if (current != nullptr && current->GetBalance() < 0) {
                 std::cout << "User CNP: " << pair.first
                           << " | Sold: " << current->GetBalance()

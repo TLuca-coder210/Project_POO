@@ -57,7 +57,7 @@ void User::AddAccount(const string &currency) {
 }
 
 void User::DeleteAccount() {
-    for (auto &it : AllAccounts) {
+    for (const auto &it : AllAccounts) {
         delete it.second;
     }
     AllAccounts.clear();
@@ -125,9 +125,7 @@ void User::AddFriend(const string &CNP_) {
 }
 
 void User::EraseFriend(const string &CNP_) {
-    if (Friends.find(CNP_) != Friends.end()) {
-        Friends.erase(CNP_);
-    }
+    Friends.erase(CNP_);
 }
 
 bool User::CheckFriend(const string &CNP_) {
@@ -138,7 +136,7 @@ bool User::CheckFriend(const string &CNP_) {
 }
 
 User::~User() {
-    for (auto &it : AllAccounts) {
+    for (const auto &it : AllAccounts) {
         delete it.second;
     }
     AllAccounts.clear();

@@ -32,7 +32,7 @@ public:
     string GetLastName();
     string GetCNP();
     Account *GetAccount(const string &IBAN);
-    map<string, Account*> GetAllAccounts() const;
+    [[nodiscard]]const map<string, Account*>& GetAllAccounts() const;
     void SendFriendInvitation(const string &CNP);
     bool AcceptFriendInvitation(const string &CNP);
     void AddFriend(const string &CNP);
