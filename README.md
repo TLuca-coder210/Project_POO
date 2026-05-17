@@ -1,5 +1,5 @@
-# Nu primesc notă pentru că nu am pus titlu și descriere
-
+# Sistem Bancar Multi-Threaded
+Acest proiect este o aplicație de consolă dezvoltată în C++ care simulează arhitectura și operațiunile de bază ale unei bănci, punând în practică conceptele fundamentale de Programare Orientată pe Obiecte. Aplicația permite gestionarea utilizatorilor și a conturilor asociate (curente cu opțiune de overdraft și de economii cu dobândă), facilitând depuneri și transferuri financiare multi-valută. Pentru a demonstra funcționalități avansate, sistemul integrează fire de execuție (threads) ce rulează în fundal pentru actualizarea cursurilor valutare, precum și un modul de audit care folosește excepții personalizate pentru a identifica și bloca automat tentativele de fraudă prin transferuri circulare.
 ### Folosiți template-ul corespunzător grupei voastre!
 
 | Laborant  | Link template                                |
