@@ -19,7 +19,7 @@ class Wallet {
 public:
     Wallet();
     ~Wallet();
-    Wallet(Account *owner);
+    explicit Wallet(Account *owner);
     Wallet(Account *owner, const string &currency);
     Wallet(const Wallet &other);
     Wallet& operator=(const Wallet &other);

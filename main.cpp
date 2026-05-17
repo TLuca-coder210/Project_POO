@@ -52,7 +52,7 @@ int main() {
                 break;
             }
             case 2: {
-                string cnp, iban, walletID, moneda;
+                string cnp, iban, moneda;
                 double suma;
                 cout << "=== Depunere Fonduri ===\n";
                 cout << "CNP Utilizator: "; cin >> cnp;
