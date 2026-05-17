@@ -118,6 +118,7 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/SavingsAccount.cpp
         include/Registry.h
         include/AccountFactory.h
+        include/Notifier.h
 )
 
 # Legăm biblioteca de thread-uri de executabilul corect ("oop")

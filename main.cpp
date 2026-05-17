@@ -8,8 +8,13 @@
 #include "SavingsAccount.h"
 #include "Wallet.h"
 #include "ExchangeBuffer.h"
+#include "Notifier.h"
 
 using namespace std;
+
+void SendAlert(const Notifier& notifier, const string& msg) {
+    notifier.sendNotification(msg);
+}
 
 void ShowMenu() {
     cout << "1. Creare Utilizator Nou" << '\n';
@@ -83,6 +88,11 @@ int main() {
                 myBank.Transfer(cnpExped, cnpDest, ibanExped, ibanDest, "", "", suma, moneda);
                 sessionLogs.AddRecord("Transfer initiat: " + to_string(suma) + " " + moneda);
                 amountLogs.AddRecord(suma);
+                SMSNotifier smsAlert("0722123456");
+                EmailNotifier emailAlert("client@banca.ro");
+                cout << "Trimitre confirmari" << '\n';
+                SendAlert(smsAlert, "Ai trimis " + to_string(suma) + " " + moneda);
+                SendAlert(emailAlert, "Transferul a fost procesat cu succes");
                 break;
             }
             case 4: {
