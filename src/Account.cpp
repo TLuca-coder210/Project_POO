@@ -17,7 +17,7 @@ Account& Account::operator=(const Account& other) {
     return *this;
 }
 
-std::string Account::GetIBAN() const { return IBAN; }
+const std::string& Account::GetIBAN() const { return IBAN; }
 double Account::GetBalance() const { return balance; }
 void Account::Deposit(double amount) { balance += amount; }
 bool Account::Withdraw(double amount) {

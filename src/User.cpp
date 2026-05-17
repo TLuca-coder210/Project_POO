@@ -96,7 +96,7 @@ Account *User::GetAccount(const string &IBAN) {
     return nullptr;
 }
 
-map<string, Account*> User::GetAllAccounts() const {
+const map<string, Account*>& User::GetAllAccounts() const {
     return AllAccounts;
 }
 
