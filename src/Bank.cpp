@@ -4,6 +4,8 @@
 
 #include "Bank.h"
 #include "Account.h"
+#include "CurrentAccount.h"
+#include "SavingsAccount.h"
 #include "ExchangeBuffer.h"
 #include <iostream>
 #include <set>
@@ -156,15 +158,8 @@ bool Bank::Deposit(const string &CNP, const string &IBAN, const string &WalletID
             cout << "IBAN invalid" << '\n';
             return false;
         }
-        Wallet *wallet = account->GetWallet(WalletID);
-        if (wallet == nullptr) {
-            cout << "WalletID invalid" << '\n';
-            return false;
-        }
-        string wallet_currency = wallet->GetCurrency();
-        double ExchangeRate = this->GetExchangeRates(currency, wallet_currency);
-        wallet->Deposit(amount * ExchangeRate);
-        cout << "Depunere reusita! S-au adaugat " << amount * ExchangeRate << " " << wallet_currency << " in cont." << '\n';
+        account->Deposit(amount);
+        cout << "Depunere reusita în contul " << IBAN << '\n';
         return true;
     }
     else {
@@ -182,20 +177,11 @@ bool Bank::Withdraw(const string &CNP, const string &IBAN, const string &WalletI
             cout << "IBAN invalid" << '\n';
             return false;
         }
-        Wallet *wallet = account->GetWallet(WalletID);
-        if (wallet == nullptr) {
-            cout << "WalletID invalid" << '\n';
-            return false;
+        if (account->Withdraw(amount)) {
+            cout << "Retragere reusita din contul " << IBAN << '\n';
+            return true;
         }
-        string wallet_currency = wallet->GetCurrency();
-        double ExchangeRate = this->GetExchangeRates(currency, wallet_currency);
-        if (wallet->GetBalance() < ExchangeRate * amount) {
-            cout << "Fonduri insuficiente" << '\n';
-            return false;
-        }
-        wallet->Withdraw(amount * ExchangeRate);
-        cout << "Retragere reusita! S-au extras " << amount * ExchangeRate << " " << wallet_currency << " in cont." << '\n';
-        return true;
+        return false;
     }
     else {
         cout << "CNP invalid" << '\n';
@@ -217,7 +203,7 @@ double Bank::GetExchangeRates(const string &first_currency, const string &second
         return it->second;
     }
     else {
-        cout << "Eroare. Nu exista curs valutar intre " << first_currency << "si " << second_currency << "." << '\n';
+        cout << "Eroare. Nu exista curs valutar intre " << first_currency << " si " << second_currency << "." << '\n';
         return 0.0;
     }
 }
@@ -253,7 +239,7 @@ void Bank::Transfer(const string &Send_CNP, const string &Receive_CNP, const str
 
 void Bank::SendFriendInvitation(const string &Send_CNP, const string &Receive_CNP) {
     if (Send_CNP != Receive_CNP) {
-        if (AllUsers.find(Send_CNP) != AllUsers.end() and AllUsers.find(Receive_CNP) != AllUsers.end()) {
+        if (AllUsers.find(Send_CNP) != AllUsers.end() && AllUsers.find(Receive_CNP) != AllUsers.end()) {
             User *client = AllUsers[Receive_CNP];
             client->SendFriendInvitation(Send_CNP);
         }
@@ -265,7 +251,7 @@ void Bank::SendFriendInvitation(const string &Send_CNP, const string &Receive_CN
 
 void Bank::AcceptFriendInvitation(const string &Send_CNP, const string &Receive_CNP) {
     if (Send_CNP != Receive_CNP) {
-        if (AllUsers.find(Send_CNP) != AllUsers.end() and AllUsers.find(Receive_CNP) != AllUsers.end()) {
+        if (AllUsers.find(Send_CNP) != AllUsers.end() && AllUsers.find(Receive_CNP) != AllUsers.end()) {
             User *first_client = AllUsers[Receive_CNP];
             if (first_client->AcceptFriendInvitation(Send_CNP)) {
                 User *second_client = AllUsers[Receive_CNP];
@@ -284,7 +270,7 @@ void Bank::AcceptFriendInvitation(const string &Send_CNP, const string &Receive_
 
 void Bank::DeleteFriend(const string &Send_CNP, const string &Receive_CNP) {
     if (Send_CNP != Receive_CNP) {
-        if (AllUsers.find(Send_CNP) != AllUsers.end() and AllUsers.find(Receive_CNP) != AllUsers.end()) {
+        if (AllUsers.find(Send_CNP) != AllUsers.end() && AllUsers.find(Receive_CNP) != AllUsers.end()) {
             User *first_client = AllUsers[Send_CNP];
             if (first_client->CheckFriend(Receive_CNP)) {
                 User *second_client = AllUsers[Receive_CNP];
@@ -342,4 +328,33 @@ bool Bank::VerifyTransaction(const AuditBuffer::USER &userAudit) {
     }
     std::cout << "Nu s-a detectat niciun pattern circular pentru aceasta suma." << '\n';
     return true;
+}
+
+void Bank::DistributeMonthlyInterest() {
+    for (const auto& pair : AllUsers) {
+        User* user = pair.second;
+        for (const auto& accPair : user->GetAllAccounts()) {
+            Account* acc = accPair.second;
+            SavingsAccount* savings = dynamic_cast<SavingsAccount*>(acc);
+            if (savings != nullptr) {
+                savings->AddInterest();
+            }
+        }
+    }
+}
+
+void Bank::AuditOverdraftBalances() {
+    std::cout << "Conturi in overdraft:" << std::endl;
+    for (const auto& pair : AllUsers) {
+        User* user = pair.second;
+        for (const auto& accPair : user->GetAllAccounts()) {
+            Account* acc = accPair.second;
+            CurrentAccount* current = dynamic_cast<CurrentAccount*>(acc);
+            if (current != nullptr && current->GetBalance() < 0) {
+                std::cout << "User CNP: " << pair.first
+                          << " | Sold: " << current->GetBalance()
+                          << " | Overdraft: " << current->GetOverdraftLimit() << std::endl;
+            }
+        }
+    }
 }

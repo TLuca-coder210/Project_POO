@@ -4,6 +4,8 @@
 
 #include "User.h"
 #include "Account.h"
+#include "CurrentAccount.h"
+#include "SavingsAccount.h"
 #include <iostream>
 
 User::User(const string &FirstName, const string &LastName, const string &CNP, const string &BirthDate) {
@@ -11,15 +13,12 @@ User::User(const string &FirstName, const string &LastName, const string &CNP, c
     this->LastName = LastName;
     this->CNP = CNP;
     this->BirthDate = BirthDate;
-    Account *new_account = new Account(this);
+
+    string initialIban = "RO98BANC" + CNP.substr(0, 4) + "RON";
+    Account *new_account = new CurrentAccount(initialIban, 0.0, 1000.0);
     string IBAN = new_account->GetIBAN();
-    if (!AllAccounts.contains(IBAN)) {
-        AllAccounts[IBAN] = new_account;
-    }
-    else {
-        delete new_account;
-        cout << "Eroare critică: IBAN duplicat generat!" << '\n';
-    }
+
+    AllAccounts[IBAN] = new_account;
 }
 
 User::User(const string &FirstName, const string &LastName, const string &CNP, const string &BirthDate, const string &currency) {
@@ -27,11 +26,17 @@ User::User(const string &FirstName, const string &LastName, const string &CNP, c
     this->LastName = LastName;
     this->CNP = CNP;
     this->BirthDate = BirthDate;
-    Account *new_account = new Account(this, currency);
-    string IBAN = new_account->GetIBAN();
-    if (AllAccounts.find(IBAN) == AllAccounts.end()) {
-        AllAccounts[IBAN] = new_account;
+
+    string initialIban = "RO98BANC" + CNP.substr(0, 4) + currency;
+    Account *new_account = nullptr;
+    if (currency == "RON") {
+        new_account = new CurrentAccount(initialIban, 0.0, 1000.0);
+    } else {
+        new_account = new SavingsAccount(initialIban, 0.0, 0.02);
     }
+
+    string IBAN = new_account->GetIBAN();
+    AllAccounts[IBAN] = new_account;
 }
 
 string User::GetBirthDate() {
@@ -51,17 +56,19 @@ string User::GetCNP() {
 }
 
 void User::AddAccount(const string &currency) {
-    Account *new_account = new Account(this, currency);
-    string IBAN = new_account->GetIBAN();
-    if (AllAccounts.find(IBAN) == AllAccounts.end()) {
-        AllAccounts[IBAN] = new_account;
+    string newIban = "RO98BANC" + this->CNP.substr(0, 4) + currency + to_string(rand() % 100);
+    Account *new_account = nullptr;
+    if (currency == "RON") {
+        new_account = new CurrentAccount(newIban, 0.0, 1000.0);
+    } else {
+        new_account = new SavingsAccount(newIban, 0.0, 0.02);
     }
+    AllAccounts[newIban] = new_account;
 }
 
 void User::DeleteAccount() {
-    for (const auto &it : AllAccounts) {
-        Account *account = it.second;
-        account->DeleteWallet();
+    for (auto &it : AllAccounts) {
+        delete it.second;
     }
     AllAccounts.clear();
 }
@@ -79,32 +86,28 @@ void User::DeleteAccount(const string &IBAN) {
 }
 
 void User::AddWallet(const string &IBAN) {
-    if (AllAccounts.find(IBAN) == AllAccounts.end()) {
-        Account *new_account = new Account(this);
-        new_account->addWallet();
-    }
-    else {
-        Account *new_account = AllAccounts[IBAN];
-        new_account->addWallet();
+    auto it = AllAccounts.find(IBAN);
+    if (it != AllAccounts.end()) {
+        it->second->Deposit(0.0);
     }
 }
 
 void User::DeleteWallet(const string &IBAN, const string &WalletID) {
-    if (AllAccounts.find(IBAN) != AllAccounts.end()) {
-        Account *account = AllAccounts[IBAN];
-        account->DeleteWallet(WalletID);
-    }
-    else {
-        cout << "IBAN invalid" << '\n';
+    auto it = AllAccounts.find(IBAN);
+    if (it != AllAccounts.end()) {
+        it->second->Withdraw(0.0);
     }
 }
 
 Account *User::GetAccount(const string &IBAN) {
     if (AllAccounts.find(IBAN) != AllAccounts.end()) {
-        Account *account = AllAccounts[IBAN];
-        return account;
+        return AllAccounts[IBAN];
     }
     return nullptr;
+}
+
+map<string, Account*> User::GetAllAccounts() const {
+    return AllAccounts;
 }
 
 void User::SendFriendInvitation(const string &CNP_) {

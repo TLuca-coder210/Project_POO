@@ -5,28 +5,29 @@
 #ifndef PROJECT_OOP_ACCOUNT_H
 #define PROJECT_OOP_ACCOUNT_H
 
-#include <iostream>
-#include <vector>
 #include <string>
-#include "User.h"
-#include "Wallet.h"
-using namespace std;
-
-class Wallet;
+#include <iostream>
 
 class Account {
-    map<string, Wallet*> AllWallets;
-    User* owner;
-    string IBAN;
+protected:
+    std::string IBAN;
+    double balance;
+
 public:
-    Account(User* owner);
-    Account(User* owner, const string &currency);
-    ~Account();
-    void addWallet();
-    void DeleteWallet();
-    void DeleteWallet(const string &WalletID);
-    string GetIBAN();
-    Wallet *GetWallet(const string &WalletID);
+    Account();
+    Account(const std::string& iban, double startBalance);
+    virtual ~Account();
+
+    Account(const Account& other);
+    Account& operator=(const Account& other);
+
+    std::string GetIBAN() const;
+    double GetBalance() const;
+    void Deposit(double amount);
+    virtual bool Withdraw(double amount);
+
+    virtual void PrintAccountType() const = 0;
+    virtual void ApplyMonthlyUpdate() = 0;
 };
 
-#endif //PROJECT_OOP_ACCOUNT_H
+#endif

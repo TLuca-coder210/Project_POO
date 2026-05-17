@@ -112,6 +112,10 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/ExchangeBuffer.cpp
         include/AuditBuffer.h
         src/AuditBuffer.cpp
+        src/CurrentAccount.cpp
+        include/CurrentAccount.h
+        include/SavingsAccount.h
+        src/SavingsAccount.cpp
 )
 
 # Legăm biblioteca de thread-uri de executabilul corect ("oop")

@@ -7,8 +7,11 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 using namespace std;
+
 class Account;
+
 class User {
     string FirstName, LastName, CNP, BirthDate;
     map<string, Account*> AllAccounts;
@@ -29,6 +32,7 @@ public:
     string GetLastName();
     string GetCNP();
     Account *GetAccount(const string &IBAN);
+    map<string, Account*> GetAllAccounts() const;
     void SendFriendInvitation(const string &CNP);
     bool AcceptFriendInvitation(const string &CNP);
     void AddFriend(const string &CNP);

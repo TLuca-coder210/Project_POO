@@ -71,6 +71,9 @@ public:
     bool VerifyTransaction(const AuditBuffer::USER &userAudit);
     void AddTransferVerification(const AuditBuffer::USER &userAudit, const bool &transfer);
     bool DFSCycleCheck(const std::string &current, const std::string &target, double amount, set<string> &visited);
+
+    void DistributeMonthlyInterest();
+    void AuditOverdraftBalances();
 };
 
 #endif //PROJECT_OOP_BANK_H
