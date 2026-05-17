@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include "Bank.h"
 #include "Registry.h"
@@ -22,6 +23,7 @@ void ShowMenu() {
 }
 
 int main() {
+    ifstream fin("tastatura.txt");
     Bank& myBank = Bank::getInstance();
     int optiune;
     myBank.ChangeExchangeRates("EUR", "RON", 5.0);
@@ -31,21 +33,26 @@ int main() {
     sessionLogs.AddRecord("Sistemul bancar a fost pornit");
     while (true) {
         ShowMenu();
-        if (!(cin >> optiune)) {
+        if (!(fin >> optiune)) {
             cout << "Te rog introdu un numar valid!" << '\n';
-            cin.clear();
-            cin.ignore(10000, '\n');
+            fin.clear();
+            fin.ignore(10000, '\n');
             continue;
         }
         switch (optiune) {
             case 1: {
                 string nume, prenume, cnp, dataNasterii, moneda;
                 cout << "=== Creare Utilizator ===" << '\n';
-                cout << "Prenume: "; cin >> prenume;
-                cout << "Nume: "; cin >> nume;
-                cout << "CNP: "; cin >> cnp;
-                cout << "Data Nasterii (ZZ.LL.AAAA): "; cin >> dataNasterii;
-                cout << "Moneda contului principal (ex: RON, EUR): "; cin >> moneda;
+                cout << "Prenume: "; fin >> prenume;
+                cout << prenume << '\n';
+                cout << "Nume: "; fin >> nume;
+                cout << nume << '\n';
+                cout << "CNP: "; fin >> cnp;
+                cout << cnp << '\n';
+                cout << "Data Nasterii (ZZ.LL.AAAA): "; fin >> dataNasterii;
+                cout << dataNasterii << '\n';
+                cout << "Moneda contului principal (ex: RON, EUR): "; fin >> moneda;
+                cout << moneda << '\n';
                 myBank.CreateUser(prenume, nume, cnp, dataNasterii, moneda);
                 sessionLogs.AddRecord("Creare utilizator nou: " + prenume + " " + nume);
                 cout << "Utilizator creat cu succes! Verificati ID-urile conturilor in loguri." << '\n';
@@ -55,10 +62,10 @@ int main() {
                 string cnp, iban, moneda;
                 double suma;
                 cout << "=== Depunere Fonduri ===\n";
-                cout << "CNP Utilizator: "; cin >> cnp;
-                cout << "IBAN-ul contului: "; cin >> iban;
-                cout << "Suma dorita: "; cin >> suma;
-                cout << "Moneda in care se face depunerea: "; cin >> moneda;
+                cout << "CNP Utilizator: "; fin >> cnp;
+                cout << "IBAN-ul contului: "; fin >> iban;
+                cout << "Suma dorita: "; fin >> suma;
+                cout << "Moneda in care se face depunerea: "; fin >> moneda;
                 myBank.Deposit(cnp, iban, "", suma, moneda);
                 sessionLogs.AddRecord("Depunere initiata pentru CNP " + cnp);
                 break;
@@ -67,12 +74,12 @@ int main() {
                 string cnpExped, ibanExped, cnpDest, ibanDest, moneda;
                 double suma;
                 cout << "=== Transfer Bancar ===" << '\n';
-                cout << "CNP Expeditor: "; cin >> cnpExped;
-                cout << "IBAN Expeditor: "; cin >> ibanExped;
-                cout << "CNP Destinatar: "; cin >> cnpDest;
-                cout << "IBAN Destinatar: "; cin >> ibanDest;
-                cout << "Suma transferata: "; cin >> suma;
-                cout << "Moneda tranzactiei: "; cin >> moneda;
+                cout << "CNP Expeditor: "; fin >> cnpExped;
+                cout << "IBAN Expeditor: "; fin >> ibanExped;
+                cout << "CNP Destinatar: "; fin >> cnpDest;
+                cout << "IBAN Destinatar: "; fin >> ibanDest;
+                cout << "Suma transferata: "; fin >> suma;
+                cout << "Moneda tranzactiei: "; fin >> moneda;
                 myBank.Transfer(cnpExped, cnpDest, ibanExped, ibanDest, "", "", suma, moneda);
                 sessionLogs.AddRecord("Transfer initiat: " + to_string(suma) + " " + moneda);
                 amountLogs.AddRecord(suma);

@@ -19,7 +19,7 @@ public:
         else if (accountType == "Savings" || accountType == "Economii") {
             return new SavingsAccount(iban, startBalance, 0.02);
         }
-        return nullptr;
+        return new CurrentAccount(iban, startBalance, 100.0);
     }
 };
 
