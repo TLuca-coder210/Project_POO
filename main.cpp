@@ -2,6 +2,11 @@
 #include <string>
 #include "Bank.h"
 #include "Registry.h"
+#include "User.h"
+#include "CurrentAccount.h"
+#include "SavingsAccount.h"
+#include "Wallet.h"
+#include "ExchangeBuffer.h"
 
 using namespace std;
 
@@ -11,7 +16,8 @@ void ShowMenu() {
     cout << "3. Initiaza Transfer Bancar" << '\n';
     cout << "4. Simulare Frauda (Tranzactie circulara)" << '\n';
     cout << "5. Analiza Loguri (Template + Lambda)" << '\n';
-    cout << "6. Iesire" << '\n';
+    cout << "6. Testare" << '\n';
+    cout << "7. Iesire" << '\n';
     cout << "Selecteaza o optiune: ";
 }
 
@@ -114,6 +120,43 @@ int main() {
                 break;
             }
             case 6: {
+                cout << "Rulare teste interne pentru mentenanta..." << '\n';
+
+                myBank.GetExchangeRates("EUR", "RON");
+                myBank.DistributeMonthlyInterest();
+                myBank.AuditOverdraftBalances();
+                myBank.CreateWallet("Dummy", "User", "9999", "01.01.1990", "RO98BANC9999RON");
+                myBank.DeleteFriend("9999", "1111");
+                myBank.DeleteUser("9999");
+
+                User testU("Test", "Test", "0000", "01.01.2000");
+                testU.GetBirthDate();
+                testU.GetFirstName();
+                testU.GetLastName();
+
+                CurrentAccount ca("RO00", 0.0, 1000.0);
+                ca.PrintAccountType();
+                ca.ApplyMonthlyUpdate();
+
+                SavingsAccount sa("RO01", 0.0, 0.02);
+                sa.GetInterestRate();
+
+                try {
+                    Wallet w;
+                    w.GetWalletID();
+                    w.GetCurrency();
+                    w.PrintGlobalVolume();
+                } catch(...) {}
+
+                try {
+                    ExchangeBuffer eb(&myBank, 10);
+                    eb.ResizeBuffer();
+                } catch(...) {}
+
+                cout << "Teste rulate cu succes!" << '\n';
+                break;
+            }
+            case 7: {
                 cout << "Inchidere sistem bancar. La revedere!" << '\n';
                 return 0;
             }
