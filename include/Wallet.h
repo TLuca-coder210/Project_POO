@@ -15,6 +15,7 @@ class Wallet {
     Account *owner;
     string currency, WalletID;
     double balance;
+    static map<std::string, double> GlobalTransactionVolume;
 public:
     Wallet();
     ~Wallet();
@@ -27,6 +28,8 @@ public:
     double GetBalance() const;
     void Deposit(const double &amount);
     void Withdraw(const double &amount);
+    static void UpdateVolume(const std::string& curr, double amount);
+    static void PrintGlobalVolume();
     bool operator==(const Wallet &other) const;
     friend std::ostream& operator<<(std::ostream &os, const Wallet &wallet);
     friend std::istream& operator>>(std::istream &is, Wallet &wallet);

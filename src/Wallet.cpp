@@ -9,6 +9,8 @@
 #include <random>
 #include <string>
 
+map<string, double> Wallet::GlobalTransactionVolume;
+
 Wallet::Wallet() {
     this->owner = nullptr;
     this->currency = "RON";
@@ -71,6 +73,7 @@ double Wallet::GetBalance() const {
 
 void Wallet::Deposit(const double &amount) {
     this->balance += amount;
+    Wallet::UpdateVolume(this->currency, amount);
 }
 
 void Wallet::Withdraw(const double &amount) {
@@ -79,6 +82,18 @@ void Wallet::Withdraw(const double &amount) {
     }
     else {
         this->balance -= amount;
+        Wallet::UpdateVolume(this->currency, amount);
+    }
+}
+
+void Wallet::UpdateVolume(const string& curr, double amount) {
+    GlobalTransactionVolume[curr] += amount;
+}
+
+void Wallet::PrintGlobalVolume() {
+    cout << "Raportul volumui de bani tranzactionati cu fiecare moneda: " << '\n';
+    for (const auto& pair : GlobalTransactionVolume) {
+        cout << "Moneda: " << pair.first << " | Total: " << pair.second / 2 << '\n';
     }
 }
 
