@@ -7,6 +7,7 @@
 #include "ExchangeBuffer.h"
 #include <iostream>
 #include <set>
+#include <algorithm>
 
 void Bank::BackgroundFetcher() {
     vector<pair<string, string>> currencies = {
