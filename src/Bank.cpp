@@ -149,7 +149,7 @@ void Bank::DeleteWallet(const string &CNP, const string &IBAN, const string &Wal
     }
 }
 
-bool Bank::Deposit(const string &CNP, const string &IBAN, const string &WalletID, const double &amount, const string &currency) {
+bool Bank::Deposit(const string &CNP, const string &IBAN, const string &, const double &amount, const string &currency) {
     RefreshRates();
     if (AllUsers.find(CNP) != AllUsers.end()) {
         User *client = AllUsers[CNP];
@@ -168,7 +168,7 @@ bool Bank::Deposit(const string &CNP, const string &IBAN, const string &WalletID
     }
 }
 
-bool Bank::Withdraw(const string &CNP, const string &IBAN, const string &WalletID, const double &amount, const string &currency) {
+bool Bank::Withdraw(const string &CNP, const string &IBAN, const string &, const double &amount, const string &currency) {
     RefreshRates();
     if (AllUsers.find(CNP) != AllUsers.end()) {
         User *client = AllUsers[CNP];

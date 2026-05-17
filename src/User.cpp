@@ -92,7 +92,7 @@ void User::AddWallet(const string &IBAN) {
     }
 }
 
-void User::DeleteWallet(const string &IBAN, const string &WalletID) {
+void User::DeleteWallet(const string &IBAN, const string &) {
     auto it = AllAccounts.find(IBAN);
     if (it != AllAccounts.end()) {
         it->second->Withdraw(0.0);
