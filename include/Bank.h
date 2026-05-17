@@ -30,6 +30,8 @@ struct Currency {
 };
 
 class Bank {
+    Bank();
+    ~Bank();
     struct AuditEdge {
         std::string receiverCNP;
         double amount;
@@ -38,6 +40,9 @@ class Bank {
     map<Currency, double> ExchangeRates;
     map<string, unordered_set<User*>> GraphUsers;
     map<AuditBuffer::USER, bool> TransferVerification;
+
+    Bank(const Bank&) = delete;
+    Bank& operator=(const Bank&) = delete;
 
     ExchangeBuffer exchangeBuffer;
     AuditBuffer auditBuffer;
@@ -50,8 +55,7 @@ class Bank {
 
     void BackgroundFetcher();
 public:
-    Bank();
-    ~Bank();
+    static Bank& getInstance();
     void RefreshRates();
     void CreateUser(const string &FirstName, const string &LastName, const string &CNP, const string &BirthDate);
     void CreateUser(const string &FirstName, const string &LastName, const string &CNP, const string &BirthDate, const string &currency);

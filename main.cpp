@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "Bank.h"
+#include "Registry.h"
 
 using namespace std;
 
@@ -9,15 +10,19 @@ void ShowMenu() {
     cout << "2. Adauga fonduri in cont (Deposit)" << '\n';
     cout << "3. Initiaza Transfer Bancar" << '\n';
     cout << "4. Simulare Frauda (Tranzactie circulara)" << '\n';
-    cout << "5. Iesire" << '\n';
+    cout << "5. Analiza Loguri (Template + Lambda)" << '\n';
+    cout << "6. Iesire" << '\n';
     cout << "Selecteaza o optiune: ";
 }
 
 int main() {
-    Bank myBank;
+    Bank& myBank = Bank::getInstance();
     int optiune;
     myBank.ChangeExchangeRates("EUR", "RON", 5.0);
     myBank.ChangeExchangeRates("USD", "RON", 4.5);
+    Registry<string> sessionLogs;
+    Registry<double> amountLogs;
+    sessionLogs.AddRecord("Sistemul bancar a fost pornit");
     while (true) {
         ShowMenu();
         if (!(cin >> optiune)) {
@@ -36,6 +41,7 @@ int main() {
                 cout << "Data Nasterii (ZZ.LL.AAAA): "; cin >> dataNasterii;
                 cout << "Moneda contului principal (ex: RON, EUR): "; cin >> moneda;
                 myBank.CreateUser(prenume, nume, cnp, dataNasterii, moneda);
+                sessionLogs.AddRecord("Creare utilizator nou: " + prenume + " " + nume);
                 cout << "Utilizator creat cu succes! Verificati ID-urile conturilor in loguri." << '\n';
                 break;
             }
@@ -48,6 +54,7 @@ int main() {
                 cout << "Suma dorita: "; cin >> suma;
                 cout << "Moneda in care se face depunerea: "; cin >> moneda;
                 myBank.Deposit(cnp, iban, "", suma, moneda);
+                sessionLogs.AddRecord("Depunere initiata pentru CNP " + cnp);
                 break;
             }
             case 3: {
@@ -61,10 +68,15 @@ int main() {
                 cout << "Suma transferata: "; cin >> suma;
                 cout << "Moneda tranzactiei: "; cin >> moneda;
                 myBank.Transfer(cnpExped, cnpDest, ibanExped, ibanDest, "", "", suma, moneda);
+                sessionLogs.AddRecord("Transfer initiat: " + to_string(suma) + " " + moneda);
+                amountLogs.AddRecord(suma);
                 break;
             }
             case 4: {
-                cout << "\n[TEST] Se ruleaza un scenariu automat de frauda circulara pentru a testa sistemul de exceptii..." << '\n';
+                cout << "\n Se ruleaza un scenariu automat de frauda circulara pentru a testa sistemul de exceptii..." << '\n';
+                sessionLogs.AddRecord("Rulare test de securitate (Frauda).");
+                amountLogs.AddRecord(500.0);
+                amountLogs.AddRecord(500.0);
                 myBank.CreateUser("Ana", "Popescu", "111", "01.01.2000", "RON");
                 myBank.CreateUser("Bogdan", "Ionescu", "222", "01.01.2000", "RON");
                 myBank.CreateUser("Cristi", "Vasilescu", "333", "01.01.2000", "RON");
@@ -82,10 +94,26 @@ int main() {
                 }
                 catch (const std::exception& e) {
                     cout << "\nEXCEPTIE PRINSĂ ÎN MAIN: " << e.what() << "\n";
+                    sessionLogs.AddRecord("Sistemul a blocat un transfer fraudulos!");
                 }
                 break;
             }
             case 5: {
+                cout << "\n=== RAPORT LOGURI SISTEM (TEMPLATE & LAMBDA) ===\n";
+                cout << "\nSumele transferate in aceasta sesiune (Sortate descrescator):\n";
+                amountLogs.SortRecords([](double a, double b) {
+                    return a > b;
+                });
+                amountLogs.PrintAll();
+                cout << "\nIstoricul actiunilor:\n";
+                sessionLogs.PrintAll();
+                int transferuri = sessionLogs.CountMatches([](const string& log) {
+                    return log.find("Transfer") != string::npos;
+                });
+                cout << "Total actiuni care contin cuvantul 'Transfer': " << transferuri << "\n";
+                break;
+            }
+            case 6: {
                 cout << "Inchidere sistem bancar. La revedere!" << '\n';
                 return 0;
             }

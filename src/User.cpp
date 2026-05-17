@@ -6,6 +6,7 @@
 #include "Account.h"
 #include "CurrentAccount.h"
 #include "SavingsAccount.h"
+#include "AccountFactory.h"
 #include <iostream>
 
 User::User(const string &FirstName, const string &LastName, const string &CNP, const string &BirthDate) {
@@ -15,7 +16,7 @@ User::User(const string &FirstName, const string &LastName, const string &CNP, c
     this->BirthDate = BirthDate;
 
     string initialIban = "RO98BANC" + CNP.substr(0, 4) + "RON";
-    Account *new_account = new CurrentAccount(initialIban, 0.0, 1000.0);
+    Account *new_account = AccountFactory::CreateAccount("RON", initialIban, 0.0);
     string IBAN = new_account->GetIBAN();
 
     AllAccounts[IBAN] = new_account;
@@ -28,13 +29,7 @@ User::User(const string &FirstName, const string &LastName, const string &CNP, c
     this->BirthDate = BirthDate;
 
     string initialIban = "RO98BANC" + CNP.substr(0, 4) + currency;
-    Account *new_account = nullptr;
-    if (currency == "RON") {
-        new_account = new CurrentAccount(initialIban, 0.0, 1000.0);
-    } else {
-        new_account = new SavingsAccount(initialIban, 0.0, 0.02);
-    }
-
+    Account *new_account = AccountFactory::CreateAccount(currency, initialIban, 0.0);
     string IBAN = new_account->GetIBAN();
     AllAccounts[IBAN] = new_account;
 }
@@ -57,12 +52,7 @@ string User::GetCNP() {
 
 void User::AddAccount(const string &currency) {
     string newIban = "RO98BANC" + this->CNP.substr(0, 4) + currency + to_string(rand() % 100);
-    Account *new_account = nullptr;
-    if (currency == "RON") {
-        new_account = new CurrentAccount(newIban, 0.0, 1000.0);
-    } else {
-        new_account = new SavingsAccount(newIban, 0.0, 0.02);
-    }
+    Account *new_account = AccountFactory::CreateAccount(currency, newIban, 0.0);
     AllAccounts[newIban] = new_account;
 }
 

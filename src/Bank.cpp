@@ -65,6 +65,11 @@ Bank::~Bank() {
     GraphUsers.clear();
 }
 
+Bank& Bank::getInstance() {
+    static Bank instance;
+    return instance;
+}
+
 void Bank::CreateUser(const string &FirstName, const string &LastName, const string &CNP, const string &BirthDate) {
     if (AllUsers.find(CNP) != AllUsers.end()) {
         cout << "Eroare: Utilizatorul cu CNP-ul " << CNP << " exista deja!" << '\n';
