@@ -1,48 +1,97 @@
 #include <iostream>
-#include <chrono>
-#include <thread>
+#include <string>
 #include "Bank.h"
 
 using namespace std;
 
+void ShowMenu() {
+    cout << "1. Creare Utilizator Nou" << '\n';
+    cout << "2. Adauga fonduri in cont (Deposit)" << '\n';
+    cout << "3. Initiaza Transfer Bancar" << '\n';
+    cout << "4. Simulare Frauda (Tranzactie circulara)" << '\n';
+    cout << "5. Iesire" << '\n';
+    cout << "Selecteaza o optiune: ";
+}
+
 int main() {
     Bank myBank;
-    string cnpA = "CNP_ALEX";
-    string cnpB = "CNP_BOGDAN";
-    string cnpC = "CNP_CRISTI";
-    double sumaTranzactie = 100.0;
-
-    AuditBuffer::USER tx1;
-    tx1.SenderCNP = cnpA;       tx1.ReceiverCNP = cnpB;
-    tx1.SenderIBAN = "IBAN_A";  tx1.ReceiverIBAN = "IBAN_B";
-    tx1.SenderWalletID = "W_A"; tx1.ReceiverWalletID = "W_B";
-    tx1.amount = sumaTranzactie;
-
-    if (myBank.VerifyTransaction(tx1)) {
-        myBank.AddTransferVerification(tx1, true);
+    int optiune;
+    myBank.ChangeExchangeRates("EUR", "RON", 5.0);
+    myBank.ChangeExchangeRates("USD", "RON", 4.5);
+    while (true) {
+        ShowMenu();
+        if (!(cin >> optiune)) {
+            cout << "Te rog introdu un numar valid!" << '\n';
+            cin.clear();
+            cin.ignore(10000, '\n');
+            continue;
+        }
+        switch (optiune) {
+            case 1: {
+                string nume, prenume, cnp, dataNasterii, moneda;
+                cout << "=== Creare Utilizator ===" << '\n';
+                cout << "Prenume: "; cin >> prenume;
+                cout << "Nume: "; cin >> nume;
+                cout << "CNP: "; cin >> cnp;
+                cout << "Data Nasterii (ZZ.LL.AAAA): "; cin >> dataNasterii;
+                cout << "Moneda contului principal (ex: RON, EUR): "; cin >> moneda;
+                myBank.CreateUser(prenume, nume, cnp, dataNasterii, moneda);
+                cout << "Utilizator creat cu succes! Verificati ID-urile conturilor in loguri." << '\n';
+                break;
+            }
+            case 2: {
+                string cnp, iban, walletID, moneda;
+                double suma;
+                cout << "=== Depunere Fonduri ===\n";
+                cout << "CNP Utilizator: "; cin >> cnp;
+                cout << "IBAN-ul contului: "; cin >> iban;
+                cout << "Suma dorita: "; cin >> suma;
+                cout << "Moneda in care se face depunerea: "; cin >> moneda;
+                myBank.Deposit(cnp, iban, "", suma, moneda);
+                break;
+            }
+            case 3: {
+                string cnpExped, ibanExped, cnpDest, ibanDest, moneda;
+                double suma;
+                cout << "=== Transfer Bancar ===" << '\n';
+                cout << "CNP Expeditor: "; cin >> cnpExped;
+                cout << "IBAN Expeditor: "; cin >> ibanExped;
+                cout << "CNP Destinatar: "; cin >> cnpDest;
+                cout << "IBAN Destinatar: "; cin >> ibanDest;
+                cout << "Suma transferata: "; cin >> suma;
+                cout << "Moneda tranzactiei: "; cin >> moneda;
+                myBank.Transfer(cnpExped, cnpDest, ibanExped, ibanDest, "", "", suma, moneda);
+                break;
+            }
+            case 4: {
+                cout << "\n[TEST] Se ruleaza un scenariu automat de frauda circulara pentru a testa sistemul de exceptii..." << '\n';
+                myBank.CreateUser("Ana", "Popescu", "111", "01.01.2000", "RON");
+                myBank.CreateUser("Bogdan", "Ionescu", "222", "01.01.2000", "RON");
+                myBank.CreateUser("Cristi", "Vasilescu", "333", "01.01.2000", "RON");
+                AuditBuffer::USER tx1; tx1.SenderCNP = "111"; tx1.ReceiverCNP = "222"; tx1.amount = 500.0;
+                AuditBuffer::USER tx2; tx2.SenderCNP = "222"; tx2.ReceiverCNP = "333"; tx2.amount = 500.0;
+                AuditBuffer::USER tx3; tx3.SenderCNP = "333"; tx3.ReceiverCNP = "111"; tx3.amount = 500.0;
+                cout << "\n1. Ana trimite bani catre Bogdan..." << '\n';
+                if (myBank.VerifyTransaction(tx1)) myBank.AddTransferVerification(tx1, true);
+                cout << "2. Bogdan trimite banii catre Cristi..." << '\n';
+                if (myBank.VerifyTransaction(tx2)) myBank.AddTransferVerification(tx2, true);
+                cout << "3. Cristi incearca sa inchida cercul trimitand banii inapoi la Ana..." << '\n';
+                try {
+                    myBank.VerifyTransaction(tx3);
+                    myBank.AddTransferVerification(tx3, true);
+                }
+                catch (const std::exception& e) {
+                    cout << "\nEXCEPTIE PRINSĂ ÎN MAIN: " << e.what() << "\n";
+                }
+                break;
+            }
+            case 5: {
+                cout << "Inchidere sistem bancar. La revedere!" << '\n';
+                return 0;
+            }
+            default:
+                cout << "Optiune invalida! Incearca din nou." << '\n';
+        }
     }
-    this_thread::sleep_for(chrono::milliseconds(200));
-
-    AuditBuffer::USER tx2;
-    tx2.SenderCNP = cnpB;       tx2.ReceiverCNP = cnpC;
-    tx2.SenderIBAN = "IBAN_B";  tx2.ReceiverIBAN = "IBAN_C";
-    tx2.SenderWalletID = "W_B"; tx2.ReceiverWalletID = "W_C";
-    tx2.amount = sumaTranzactie;
-
-    if (myBank.VerifyTransaction(tx2)) {
-        myBank.AddTransferVerification(tx2, true);
-    }
-    this_thread::sleep_for(chrono::milliseconds(200));
-
-    AuditBuffer::USER tx3;
-    tx3.SenderCNP = cnpC;       tx3.ReceiverCNP = cnpA;
-    tx3.SenderIBAN = "IBAN_C";  tx3.ReceiverIBAN = "IBAN_A";
-    tx3.SenderWalletID = "W_C"; tx3.ReceiverWalletID = "W_A";
-    tx3.amount = sumaTranzactie;
-
-    if (myBank.VerifyTransaction(tx3)) {
-        myBank.AddTransferVerification(tx3, true);
-    }
-    this_thread::sleep_for(chrono::milliseconds(200));
     return 0;
 }

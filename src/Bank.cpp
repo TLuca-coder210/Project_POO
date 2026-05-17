@@ -210,30 +210,32 @@ double Bank::GetExchangeRates(const string &first_currency, const string &second
 
 void Bank::Transfer(const string &Send_CNP, const string &Receive_CNP, const string &Send_IBAN, const string &Receive_IBAN, const string &Send_WalletID, const string &Receive_WalletID, const double &amount, const string &currency) {
     RefreshRates();
-    bool withdraw = this->Withdraw(Send_CNP, Send_IBAN, Send_WalletID, amount, currency);
-    if (withdraw) {
-        bool deposit = this->Deposit(Receive_CNP, Receive_IBAN, Receive_WalletID, amount, currency);
-        if (deposit) {
-            cout << "Tranzactia a fost acceptata" << '\n';
-            AuditBuffer::USER tx;
-            tx.SenderCNP = Send_CNP;
-            tx.SenderIBAN = Send_IBAN;
-            tx.SenderWalletID = Send_WalletID;
-            tx.ReceiverCNP = Receive_CNP;
-            tx.ReceiverIBAN = Receive_IBAN;
-            tx.ReceiverWalletID = Receive_WalletID;
-            tx.amount = amount;
-            if (!auditBuffer.InsertProducer(tx)) {
-                cout << "[Audit System] Buffer plin, se auto-redimensioneaza in fundal..." << '\n';
+    try {
+        AuditBuffer::USER tx_check;
+        tx_check.SenderCNP = Send_CNP;
+        tx_check.ReceiverCNP = Receive_CNP;
+        tx_check.amount = amount;
+        this->VerifyTransaction(tx_check);
+        bool withdraw_ok = this->Withdraw(Send_CNP, Send_IBAN, Send_WalletID, amount, currency);
+        if (withdraw_ok) {
+            bool deposit_ok = this->Deposit(Receive_CNP, Receive_IBAN, Receive_WalletID, amount, currency);
+            if (deposit_ok) {
+                std::cout << "Tranzactia a fost acceptata" << '\n';
+                if (!auditBuffer.InsertProducer(tx_check)) {
+                    std::cout << "[Audit System] Buffer plin..." << '\n';
+                }
+            } else {
+                std::cout << "Eroare la depunere" << '\n';
+                this->Deposit(Send_CNP, Send_IBAN, Send_WalletID, amount, currency);
             }
-        }
-        else {
-            cout << "Eroare la depunere" << '\n';
-            this->Deposit(Send_CNP, Send_IBAN, Send_WalletID, amount, currency);
+        } else {
+            std::cout << "Transfer anulat: Tranzactia de retragere a esuat" << '\n';
         }
     }
-    else {
-        cout << "Transfer anulat: Tranzactia de retragere a esuat" << '\n';
+    catch (const std::exception &e) {
+        std::cout << "\n[SISTEM SIGURANTA BANCA] S-a interceptat o problema critica in timpul transferului!" << std::endl;
+        std::cout << "Detalii eroare: " << e.what() << std::endl;
+        std::cout << "[SISTEM SIGURANTA BANCA] Operatiunea de transfer a fost BLOCATA complet pentru siguranta.\n" << std::endl;
     }
 }
 
@@ -322,9 +324,9 @@ bool Bank::VerifyTransaction(const AuditBuffer::USER &userAudit) {
               << userAudit.SenderCNP << " -> " << userAudit.ReceiverCNP << " (" << userAudit.amount << ")" << '\n';
     std::set<std::string> visited;
     if (DFSCycleCheck(userAudit.ReceiverCNP, userAudit.SenderCNP, userAudit.amount, visited)) {
-        std::cout << "S-a detectat un pattern circular de tranzactionare! "
-                  << "Suma de " << userAudit.amount << " RON se invarte in cerc." << '\n';
-        return false;
+        throw FraudDetectedException("Tranzactie circulara suspecta detectata intre CNP: "
+                                     + userAudit.SenderCNP + " si CNP: " + userAudit.ReceiverCNP
+                                     + " pentru suma de " + std::to_string(userAudit.amount) + " RON!");
     }
     std::cout << "Nu s-a detectat niciun pattern circular pentru aceasta suma." << '\n';
     return true;

@@ -7,6 +7,24 @@
 
 #include <string>
 #include <iostream>
+#include <exception>
+
+#include <exception>
+
+class BankException : public std::exception {
+protected:
+    std::string message;
+public:
+    explicit BankException(const std::string& msg) : message(msg) {}
+    const char* what() const noexcept override {
+        return message.c_str();
+    }
+};
+
+class FraudDetectedException : public BankException {
+public:
+    explicit FraudDetectedException(const std::string& msg) : BankException("[ALERTA FRAUDA] " + msg) {}
+};
 
 class Account {
 protected:
